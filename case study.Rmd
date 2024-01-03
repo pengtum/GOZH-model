@@ -11,24 +11,15 @@ Try executing this chunk by clicking the *Run* button within the chunk or by pla
 # Load Data
 # better rewrite this with python3 for future using
 
-source("D://GOZH.R")
+source("..//GOZH.R")
 
-#load("D:/STH/data_v2.rda")
-
-data=read.csv("D://research///RGOZH//Data_accident.csv",encoding='UTF-8')
+data=read.csv("..//Data_accident.csv",encoding='UTF-8')
 
 d1 <- na.omit(data)
 
 head(d1)
 
 ```
-
-```{r}
-formula <- as.formula(paste("TA10K", paste(names(d1)[-c(1,2,11)], collapse = "+"), sep = "~"))
-formula
-```
-
-
 
 ```{r}
 ### Run the GOZH model
@@ -42,14 +33,15 @@ formula <- as.formula(paste("TA10K", paste(names(d1)[-c(1,2,11)], collapse = "+"
  #   Minimum.Security.Rate
 
 
-
 t1 <- GOZH(formula, data = d1,complexity=0.001) 
   
 sht.sm.result <- t1
   
 filename=paste("../Q_all.csv",sep="")
 write.table(sht.sm.result[["all.q"]],file=filename )
-  
+## sht.sm.result[["all.q"] file: include Q values for all combinations of variables.
+
+
 ```
 
 
@@ -79,6 +71,7 @@ tree=git
 
 tree$frame$yval=as.numeric(rownames(tree$frame))
 predict <- predict(tree, newdata=d1, class="anova")
+## predict file: include the zoning results for all location (rows)
 
 filename=paste("..//predict_zone.csv",sep="")
 write.table(predict,file=filename )

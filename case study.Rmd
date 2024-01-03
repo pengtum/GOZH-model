@@ -1,0 +1,91 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+# Load Data
+# better rewrite this with python3 for future using
+
+source("D://GOZH.R")
+
+#load("D:/STH/data_v2.rda")
+
+data=read.csv("D://research///RGOZH//Data_accident.csv",encoding='UTF-8')
+
+d1 <- na.omit(data)
+
+head(d1)
+
+```
+
+```{r}
+formula <- as.formula(paste("TA10K", paste(names(d1)[-c(1,2,11)], collapse = "+"), sep = "~"))
+formula
+```
+
+
+
+```{r}
+### Run the GOZH model
+
+## selecting best trees and q values from all combinations using Fun_treeall
+
+
+formula <- as.formula(paste("TA10K", paste(names(d1)[-c(1,2,11)], collapse = "+"), sep = "~"))
+# formula<- TA10K ~ Car.Ownership + Total.Income + Employees + Average.Age + 
+  #  Corporate.Insolvencies + Business.Registrations + Disposable.Income + 
+ #   Minimum.Security.Rate
+
+
+
+t1 <- GOZH(formula, data = d1,complexity=0.001) 
+  
+sht.sm.result <- t1
+  
+filename=paste("../Q_all.csv",sep="")
+write.table(sht.sm.result[["all.q"]],file=filename )
+  
+```
+
+
+```{r}
+
+library(rattle)
+library(rpart.plot)
+
+### Output the results of GOZH, including the best combination, and the q-value for all variables variables.
+
+t1$best.vars
+t1$best.formula
+q.all<-t1$all.q
+f.best <- t1$best.formula
+
+
+
+### Visulaze the tree structure using the best variable combination
+
+
+git <- rpart(f.best, method='anova', data=d1,cp=0.001)
+fancyRpartPlot(git, caption = NULL)
+tree=git
+
+
+### Output the predicted zone for each pixel
+
+tree$frame$yval=as.numeric(rownames(tree$frame))
+predict <- predict(tree, newdata=d1, class="anova")
+
+filename=paste("..//predict_zone.csv",sep="")
+write.table(predict,file=filename )
+
+
+```
+
+
+
+
